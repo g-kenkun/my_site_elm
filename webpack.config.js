@@ -20,7 +20,11 @@ module.exports = {
     },
     plugins: [
         new HtmlWebpackPlugin({
-
+            title: "IO.inspect(独り言)"
         })
-    ]
+    ],
+    output: {
+        filename: "main.js",
+        path: __dirname
+    }
 };

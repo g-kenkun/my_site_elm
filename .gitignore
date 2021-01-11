@@ -13,6 +13,3 @@ repl-temp-*
 
 # ライブラリ
 node_modules
-
-# ビルド成果物
-dist
