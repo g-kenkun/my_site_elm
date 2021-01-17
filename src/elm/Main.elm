@@ -7,8 +7,9 @@ import Browser.Navigation as Nav
 import Page
 import Page.Home as Home
 import Page.NotFound as NotFound
+import Page.Post as Post
 import Url
-import Url.Parser as Parser exposing (Parser, oneOf, top)
+import Url.Parser as Parser exposing ((</>), Parser, custom, oneOf, s, string, top)
 
 
 main =
@@ -35,6 +36,7 @@ type alias Model =
 type Page
     = NotFound
     | Home Home.Model
+    | Post Post.Model
 
 
 
@@ -63,6 +65,9 @@ view model =
         Home home ->
             Page.view HomeMsg (Home.view home)
 
+        Post post ->
+            Page.view PostMsg (Post.view post)
+
 
 
 -- INIT
@@ -85,6 +90,7 @@ type Msg
     | LinkClicked Browser.UrlRequest
     | UrlChanged Url.Url
     | HomeMsg Home.Msg
+    | PostMsg Post.Msg
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -116,11 +122,26 @@ update message model =
                 _ ->
                     ( model, Cmd.none )
 
+        PostMsg msg ->
+            case model.page of
+                Post post ->
+                    stepPost model (Post.update msg post)
+
+                _ ->
+                    ( model, Cmd.none )
+
 
 stepHome : Model -> ( Home.Model, Cmd Home.Msg ) -> ( Model, Cmd Msg )
 stepHome model ( home, cmds ) =
     ( { model | page = Home home }
     , Cmd.map HomeMsg cmds
+    )
+
+
+stepPost : Model -> ( Post.Model, Cmd Post.Msg ) -> ( Model, Cmd Msg )
+stepPost model ( post, cmds ) =
+    ( { model | page = Post post }
+    , Cmd.map PostMsg cmds
     )
 
 
@@ -135,6 +156,10 @@ stepUrl url model =
             oneOf
                 [ route top
                     (stepHome model Home.init)
+                , route (s "posts" </> postId_)
+                    (\postId ->
+                        stepPost model (Post.init postId)
+                    )
                 ]
     in
     case Parser.parse parser url of
@@ -150,3 +175,8 @@ stepUrl url model =
 route : Parser a b -> a -> Parser (b -> c) c
 route parser handler =
     Parser.map handler parser
+
+
+postId_ : Parser (String -> a) a
+postId_ =
+    custom "POST_ID" Just

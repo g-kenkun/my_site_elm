@@ -21,7 +21,7 @@ view toMsg details =
     { title = details.title
     , body =
         [ viewHeader
-        , Html.map toMsg <| div details.attrs details.kids
+        , div [ class "container mx-auto" ] [ Html.map toMsg <| div details.attrs details.kids ]
         , viewFooter
         ]
     }
@@ -33,7 +33,7 @@ view toMsg details =
 
 viewHeader : Html msg
 viewHeader =
-    header [ class "frex justify-between" ]
+    header [ class "flex justify-between flex-wrap p-6" ]
         [ span []
             [ text "IO.inspect(独り言)" ]
         , nav
