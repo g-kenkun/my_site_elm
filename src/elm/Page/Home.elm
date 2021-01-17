@@ -126,6 +126,6 @@ getRequest url expect =
 
 buildUrl : List String -> List Builder.QueryParameter -> String
 buildUrl paths queryParams =
-    Builder.crossOrigin "http://localhost:4000"
+    Builder.crossOrigin "https://api.g-kenkun.dev"
         ("api" :: paths)
         queryParams
