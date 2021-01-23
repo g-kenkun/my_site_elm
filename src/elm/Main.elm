@@ -8,6 +8,7 @@ import Page
 import Page.Home as Home
 import Page.NotFound as NotFound
 import Page.Post as Post
+import Page.Posts as Posts
 import Url
 import Url.Parser as Parser exposing ((</>), Parser, custom, oneOf, s, string, top)
 
@@ -36,6 +37,7 @@ type alias Model =
 type Page
     = NotFound
     | Home Home.Model
+    | Posts Posts.Model
     | Post Post.Model
 
 
@@ -65,6 +67,9 @@ view model =
         Home home ->
             Page.view HomeMsg (Home.view home)
 
+        Posts posts ->
+            Page.view PostsMsg (Posts.view posts)
+
         Post post ->
             Page.view PostMsg (Post.view post)
 
@@ -90,6 +95,7 @@ type Msg
     | LinkClicked Browser.UrlRequest
     | UrlChanged Url.Url
     | HomeMsg Home.Msg
+    | PostsMsg Posts.Msg
     | PostMsg Post.Msg
 
 
@@ -122,6 +128,14 @@ update message model =
                 _ ->
                     ( model, Cmd.none )
 
+        PostsMsg msg ->
+            case model.page of
+                Posts posts ->
+                    stepPosts model (Posts.update msg posts)
+
+                _ ->
+                    ( model, Cmd.none )
+
         PostMsg msg ->
             case model.page of
                 Post post ->
@@ -135,6 +149,13 @@ stepHome : Model -> ( Home.Model, Cmd Home.Msg ) -> ( Model, Cmd Msg )
 stepHome model ( home, cmds ) =
     ( { model | page = Home home }
     , Cmd.map HomeMsg cmds
+    )
+
+
+stepPosts : Model -> ( Posts.Model, Cmd Posts.Msg ) -> ( Model, Cmd Msg )
+stepPosts model ( posts, cmds ) =
+    ( { model | page = Posts posts }
+    , Cmd.map PostsMsg cmds
     )
 
 
@@ -156,6 +177,8 @@ stepUrl url model =
             oneOf
                 [ route top
                     (stepHome model Home.init)
+                , route (s "posts")
+                    (stepPosts model Posts.init)
                 , route (s "posts" </> postId_)
                     (\postId ->
                         stepPost model (Post.init postId)

@@ -1,11 +1,6 @@
-module Page.Home exposing (..)
+module Page.Posts exposing (..)
 
--- MODEL
-
-import Api
-import Html exposing (Html, a, article, div, h2, text)
-import Html.Attributes exposing (class, href)
-import Html.Lazy exposing (lazy)
+import Html exposing (Html)
 import Http
 import Json.Decode as Decode
 import Page
@@ -14,19 +9,27 @@ import Url.Builder as Builder
 
 
 type alias Model =
-    { posts : Posts }
+    { posts : Posts
+    , count : Count
+    }
 
 
 type Posts
-    = Failure
-    | Loading
-    | Success (List Post.Post)
+    = PostsFailure
+    | PostsLoading
+    | PostsSuccess (List Post.Post)
+
+
+type Count
+    = CountFailure
+    | CountLoading
+    | CountSuccess Post.Count
 
 
 init : ( Model, Cmd Msg )
 init =
-    ( Model Loading
-    , getLatestPosts
+    ( Model PostsLoading CountLoading
+    , Cmd.batch [ getPosts, getPostCount ]
     )
 
 
@@ -36,6 +39,7 @@ init =
 
 type Msg
     = GotPosts (Result Http.Error (List Post.Post))
+    | GotCount (Result Http.Error Post.Count)
 
 
 update : Msg -> Model -> ( Model, Cmd msg )
@@ -45,13 +49,31 @@ update msg model =
             case result of
                 Ok posts ->
                     ( { model
-                        | posts = Success posts
+                        | posts = PostsSuccess posts
                       }
                     , Cmd.none
                     )
 
                 Err _ ->
-                    ( { model | posts = Failure }
+                    ( { model
+                        | posts = PostsFailure
+                      }
+                    , Cmd.none
+                    )
+
+        GotCount result ->
+            case result of
+                Ok count ->
+                    ( { model
+                        | count = CountSuccess count
+                      }
+                    , Cmd.none
+                    )
+
+                Err _ ->
+                    ( { model
+                        | count = CountFailure
+                      }
                     , Cmd.none
                     )
 
@@ -64,50 +86,29 @@ view : Model -> Page.Details Msg
 view model =
     { title = "IO.inspect(独り言)"
     , attrs = []
-    , kids = [ lazy viewHome model.posts ]
+    , kids = []
     }
 
 
 
--- VIEW HOME
+-- VIEW PAGINATION
 
 
-viewHome : Posts -> Html Msg
-viewHome posts =
-    div [ class "grid grid-cols-3" ]
-        [ viewPosts posts
-        ]
-
-
-viewPosts : Posts -> Html Msg
-viewPosts posts =
-    div [ class "col-span-2" ]
-        [ case posts of
-            Failure ->
-                text ""
-
-            Loading ->
-                text ""
-
-            Success fetchedPosts ->
-                div [ class "divide-y" ] (List.map viewPost fetchedPosts)
-        ]
-
-
-viewPost : Post.Post -> Html msg
-viewPost post =
-    article []
-        [ h2 []
-            [ a [ href (Builder.absolute [ "posts", post.id ] []) ] [ text post.title ] ]
-        ]
+viewPagination : Count -> Html Msg
 
 
 
+--viewPagination count =
 -- HTTP
 
 
-getLatestPosts : Cmd Msg
-getLatestPosts =
+getPostCount : Cmd Msg
+getPostCount =
+    getRequest (buildUrl [ "blog", "posts", "count" ] []) <| Http.expectJson GotCount Post.countDecoder
+
+
+getPosts : Cmd Msg
+getPosts =
     getRequest (buildUrl [ "blog", "posts" ] [ Builder.int "limit" 10 ]) <| Http.expectJson GotPosts (Decode.list Post.postDecoder)
 
 

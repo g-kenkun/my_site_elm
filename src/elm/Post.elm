@@ -2,7 +2,7 @@ module Post exposing (..)
 
 import Html exposing (Attribute, Html)
 import Iso8601
-import Json.Decode as Decode exposing (Decoder, list, string)
+import Json.Decode as Decode exposing (Decoder, int, list, string)
 import Json.Decode.Pipeline exposing (required)
 import Markdown
 import Time
@@ -21,6 +21,10 @@ type alias Post =
     }
 
 
+type alias Count =
+    { count : Int }
+
+
 
 -- CONVERSIONS
 
@@ -34,11 +38,17 @@ contentToHtml post attributes =
 -- DECODER
 
 
-decoder : Decode.Decoder Post
-decoder =
+postDecoder : Decode.Decoder Post
+postDecoder =
     Decode.succeed Post
         |> required "id" string
         |> required "title" string
         |> required "tags" (list string)
         |> required "created_at" Iso8601.decoder
         |> required "content" string
+
+
+countDecoder : Decode.Decoder Count
+countDecoder =
+    Decode.succeed Count
+        |> required "count" int

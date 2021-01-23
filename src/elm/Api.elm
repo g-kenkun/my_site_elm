@@ -26,7 +26,7 @@ buildUrl paths queryParams =
 
 getLatestPost : Cmd Msg
 getLatestPost =
-    getRequest (buildUrl [] []) <| Http.expectJson GotPostPreviews Post.decoder
+    getRequest (buildUrl [] []) <| Http.expectJson GotPostPreviews Post.postDecoder
 
 
 getRequest : String -> Http.Expect Msg -> Cmd Msg

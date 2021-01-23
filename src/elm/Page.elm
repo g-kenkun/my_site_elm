@@ -39,6 +39,7 @@ viewHeader =
         , nav
             []
             [ a [ href "/" ] [ text "Home" ]
+            , a [ href "/posts" ] [ text "Posts" ]
             ]
         ]
 

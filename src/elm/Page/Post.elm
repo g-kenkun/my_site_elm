@@ -91,7 +91,7 @@ viewPost post =
 
 getPost : String -> Cmd Msg
 getPost postId =
-    getRequest (buildUrl [ "blog", "posts", postId ] []) <| Http.expectJson GotPost Post.decoder
+    getRequest (buildUrl [ "blog", "posts", postId ] []) <| Http.expectJson GotPost Post.postDecoder
 
 
 getRequest : String -> Http.Expect Msg -> Cmd Msg
@@ -110,5 +110,5 @@ getRequest url expect =
 buildUrl : List String -> List Builder.QueryParameter -> String
 buildUrl paths queryParams =
     Builder.crossOrigin "https://api.g-kenkun.dev"
-        ("api" :: paths)
+        paths
         queryParams
