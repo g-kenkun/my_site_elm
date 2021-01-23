@@ -91,13 +91,10 @@ view model =
 
 
 
--- VIEW PAGINATION
-
-
-viewPagination : Count -> Html Msg
-
-
-
+---- VIEW PAGINATION
+--
+--
+--viewPagination : Count -> Html Msg
 --viewPagination count =
 -- HTTP
 
