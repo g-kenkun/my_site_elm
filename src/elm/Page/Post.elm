@@ -79,7 +79,7 @@ viewPost post =
                 text ""
 
             Success fetchedPost ->
-                article [ class "col-span-2" ]
+                article [ class "col-span-2 prose" ]
                     [ Post.contentToHtml fetchedPost []
                     ]
         ]
