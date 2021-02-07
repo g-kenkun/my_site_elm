@@ -4,11 +4,20 @@ const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const HtmlWebpackTagsPlugin = require('html-webpack-tags-plugin');
 const CopyPlugin = require("copy-webpack-plugin");
 let elmSource = __dirname
+let publicPath
+if (process.env.NODE_ENV === "production") {
+    publicPath = "/"
+} else if (process.env.NODE_ENV === "development") {
+    publicPath = ""
+}
 
 module.exports = {
     entry : [
-      "./src/js/index.js"
+        "./src/js/index.js"
     ],
+    output : {
+        publicPath: publicPath
+    },
     module : {
         rules: [
             {
